@@ -4,7 +4,7 @@ import com.example.accounts.dto.AccountsDto;
 import com.example.accounts.entity.Accounts;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AccountsMapper {
     AccountsDto mapToAccountsDto(Accounts accounts);
 
