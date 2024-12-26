@@ -19,8 +19,10 @@ public class Customer extends BaseEntity {
     @Column(name = "customer_id")
     private Long customerId;
 
+    @Column
     private String name;
 
+    @Column
     private String email;
 
     @Column(name = "mobile_number")
