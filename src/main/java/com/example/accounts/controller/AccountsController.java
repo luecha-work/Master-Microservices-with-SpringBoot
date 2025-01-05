@@ -4,35 +4,45 @@ import com.example.accounts.constants.AccountsConstants;
 import com.example.accounts.dto.CustomerDto;
 import com.example.accounts.dto.ResponseDto;
 import com.example.accounts.sevice_contract.IAccountsService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @AllArgsConstructor
+@Validated
 public class AccountsController {
 
     private IAccountsService accountsService;
 
+//    public AccountsController(IAccountsService accountsService) {
+//        this.accountsService = accountsService;
+//    }
+
     @PostMapping("/account")
-    public ResponseEntity<ResponseDto> createAccount(@RequestBody CustomerDto customerDto) {
+    public ResponseEntity<ResponseDto> createAccount(@Valid @RequestBody CustomerDto customerDto) {
         accountsService.createAccounts(customerDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto(AccountsConstants.STATUS_201, AccountsConstants.MESSAGE_201));
     }
 
     @GetMapping("/account")
-    public ResponseEntity<CustomerDto> getAccountDetail(@RequestParam String mobileNumber) {
+    public ResponseEntity<CustomerDto> getAccountDetail(
+            @RequestParam
+            @Pattern(regexp = "^$|[0-9]{10}", message = "Mobile number must be 10 digits") String mobileNumber) {
         CustomerDto customerDto = accountsService.getAccountDetailByMobilePhone(mobileNumber);
 
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
     }
 
     @PatchMapping("/account")
-    public ResponseEntity<ResponseDto> updateAccount(@RequestBody CustomerDto customerDto) {
+    public ResponseEntity<ResponseDto> updateAccount(@Valid @RequestBody CustomerDto customerDto) {
         boolean isUpdated = accountsService.updateAccount(customerDto);
         HttpStatus status = isUpdated ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         String message = isUpdated ? AccountsConstants.MESSAGE_200 : AccountsConstants.MESSAGE_500;

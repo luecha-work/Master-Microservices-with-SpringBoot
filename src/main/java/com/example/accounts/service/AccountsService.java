@@ -45,8 +45,13 @@ public class AccountsService implements IAccountsService {
 
     @Override
     public CustomerDto getAccountDetailByMobilePhone(String phoneNumber) {
-        Customer customer = customerRepository.findByMobileNumber(phoneNumber).orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", phoneNumber));
-        Accounts account = accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(() -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString()));
+        Customer customer = customerRepository
+                .findByMobileNumber(phoneNumber)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Customer", "mobileNumber", phoneNumber));
+        Accounts account = accountsRepository
+                .findByCustomerId(customer.getCustomerId()).orElseThrow(
+                        () -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString()));
 
 
         CustomerDto customerDto = customerMapper.mapToCustomerDto(customer);
@@ -61,7 +66,9 @@ public class AccountsService implements IAccountsService {
         boolean isUpdated = false;
         AccountsDto accountsDto = customerDto.getAccountsDto();
         if (accountsDto != null) {
-            Accounts existingAccount = accountsRepository.findById(accountsDto.getAccountNumber()).orElseThrow(() -> new ResourceNotFoundException("Account", "accountId", accountsDto.getAccountNumber().toString()));
+            Accounts existingAccount = accountsRepository
+                    .findById(accountsDto.getAccountNumber()).orElseThrow(
+                            () -> new ResourceNotFoundException("Account", "accountId", accountsDto.getAccountNumber().toString()));
 
             EntityUpdater.updateNonNullFields(accountsDto, existingAccount);
             existingAccount.setUpdatedAt(LocalDateTime.now());
@@ -69,7 +76,9 @@ public class AccountsService implements IAccountsService {
             accountsRepository.save(existingAccount);
 
             Long customerId = existingAccount.getCustomerId();
-            Customer existingCustomer = customerRepository.findById(customerId).orElseThrow(() -> new ResourceNotFoundException("Customer", "customerId", customerId.toString()));
+            Customer existingCustomer = customerRepository
+                    .findById(customerId).orElseThrow(
+                            () -> new ResourceNotFoundException("Customer", "customerId", customerId.toString()));
 
             EntityUpdater.updateNonNullFields(customerDto, existingCustomer);
             existingCustomer.setUpdatedAt(LocalDateTime.now());
@@ -82,7 +91,9 @@ public class AccountsService implements IAccountsService {
 
     @Override
     public boolean deleteAccount(String mobileNumber) {
-        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber));
+        Customer customer = customerRepository
+                .findByMobileNumber(mobileNumber).orElseThrow(
+                        () -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber));
         accountsRepository.deleteByCustomerId(customer.getCustomerId());
         customerRepository.deleteById(customer.getCustomerId());
 
