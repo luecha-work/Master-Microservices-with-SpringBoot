@@ -12,6 +12,7 @@ import com.example.accounts.mapper.CustomerMapper;
 import com.example.accounts.repository.AccountsRepository;
 import com.example.accounts.repository.CustomerRepository;
 import com.example.accounts.sevice_contract.IAccountsService;
+import com.example.accounts.utils.EntityUpdater;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,10 +31,6 @@ public class AccountsService implements IAccountsService {
     public void createAccounts(CustomerDto customerDto) {
         Customer customer = customerMapper.mapToCustomer(customerDto);
 
-
-        System.out.println("AccountsService map customerDto: " + customerDto.getEmail());
-        System.out.println("AccountsService map customer: " + customer.getEmail());
-
         customerRepository.findByMobileNumber(customer.getMobileNumber());
 
         if (customerRepository.findByMobileNumber(customer.getMobileNumber()).isPresent()) {
@@ -44,18 +41,12 @@ public class AccountsService implements IAccountsService {
         customer.setCreatedAt(LocalDateTime.now());
         Customer savedCustomer = customerRepository.save(customer);
         accountsRepository.save(createNewAccount(savedCustomer));
-
-        System.out.println("AccountsService savedCustomer: " + savedCustomer.getCreatedBy());
     }
 
     @Override
     public CustomerDto getAccountDetailByMobilePhone(String phoneNumber) {
-        Customer customer = customerRepository.findByMobileNumber(phoneNumber).orElseThrow(
-                () -> new ResourceNotFoundException("Customer", "mobileNumber", phoneNumber)
-        );
-        Accounts account = accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(
-                () -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString())
-        );
+        Customer customer = customerRepository.findByMobileNumber(phoneNumber).orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", phoneNumber));
+        Accounts account = accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(() -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString()));
 
 
         CustomerDto customerDto = customerMapper.mapToCustomerDto(customer);
@@ -63,6 +54,30 @@ public class AccountsService implements IAccountsService {
         customerDto.setAccountsDto(accountsDto);
 
         return customerDto;
+    }
+
+    @Override
+    public boolean updateAccount(CustomerDto customerDto) {
+        boolean isUpdated = false;
+        AccountsDto accountsDto = customerDto.getAccountsDto();
+        if (accountsDto != null) {
+            Accounts existingAccount = accountsRepository.findById(accountsDto.getAccountNumber()).orElseThrow(() -> new ResourceNotFoundException("Account", "accountId", accountsDto.getAccountNumber().toString()));
+
+            EntityUpdater.updateNonNullFields(accountsDto, existingAccount);
+            existingAccount.setUpdatedAt(LocalDateTime.now());
+            existingAccount.setUpdatedBy("System");
+            accountsRepository.save(existingAccount);
+
+            Long customerId = existingAccount.getCustomerId();
+            Customer existingCustomer = customerRepository.findById(customerId).orElseThrow(() -> new ResourceNotFoundException("Customer", "customerId", customerId.toString()));
+
+            EntityUpdater.updateNonNullFields(customerDto, existingCustomer);
+            existingCustomer.setUpdatedAt(LocalDateTime.now());
+            existingCustomer.setUpdatedBy("System");
+            customerRepository.save(existingCustomer);
+            isUpdated = true;
+        }
+        return isUpdated;
     }
 
     private Accounts createNewAccount(Customer customer) {
@@ -78,4 +93,6 @@ public class AccountsService implements IAccountsService {
 
         return newAccount;
     }
+
+
 }

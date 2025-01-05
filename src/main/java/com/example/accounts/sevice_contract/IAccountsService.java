@@ -19,4 +19,12 @@ public interface IAccountsService {
      * @return the account details for the provided phone number
      */
     CustomerDto getAccountDetailByMobilePhone(String phoneNumber);
+
+    /**
+     * Updates the account details for the provided account.
+     *
+     * @param customerDto the account details to update
+     * @return true if the account details were updated successfully, false otherwise
+     */
+    boolean updateAccount(CustomerDto customerDto);
 }
