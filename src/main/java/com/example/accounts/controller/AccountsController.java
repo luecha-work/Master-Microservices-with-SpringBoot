@@ -84,6 +84,10 @@ public class AccountsController {
                     description = "Account updated successfully"
             ),
             @ApiResponse(
+                    responseCode = "417",
+                    description = "Expectation Failed"
+            ),
+            @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))
@@ -106,6 +110,10 @@ public class AccountsController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Account deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "417",
+                    description = "Expectation Failed"
             ),
             @ApiResponse(
                     responseCode = "500",
