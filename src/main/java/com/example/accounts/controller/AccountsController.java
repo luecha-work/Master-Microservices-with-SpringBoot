@@ -2,9 +2,12 @@ package com.example.accounts.controller;
 
 import com.example.accounts.constants.AccountsConstants;
 import com.example.accounts.dto.CustomerDto;
+import com.example.accounts.dto.ErrorResponseDto;
 import com.example.accounts.dto.ResponseDto;
 import com.example.accounts.sevice_contract.IAccountsService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -82,7 +85,8 @@ public class AccountsController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error"
+                    description = "Internal Server Error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
     @PatchMapping("/account")
@@ -105,7 +109,8 @@ public class AccountsController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error"
+                    description = "Internal Server Error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
     @DeleteMapping("/account")
